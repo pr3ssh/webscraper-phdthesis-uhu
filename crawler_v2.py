@@ -39,7 +39,7 @@ try:
 except:
     exit
 
-for offset in xrange(0, int(20), jump):
+for offset in xrange(0, int(total_thesis), jump):
     req  = requests.get("{}{}?offset={}".format(host_url, thesis_url, offset))
     data = req.text
     soup = BeautifulSoup(data, "html.parser")
