@@ -1,6 +1,6 @@
 from bs4 import BeautifulSoup
 import requests
-import json
+import simplejson as json
 
 '''
 La documentacion puede ser encontrada en
@@ -19,7 +19,7 @@ def ncd(str):
 def parse_thesis_simplified(element, thesis):
     thesis['title'] = ncd(element.select_one('h4 a').text)
     info = element.find('div', class_='artifact-info')
-    thesis['autor'] = info.select_one('span.author small span a').text
+    thesis['author'] = info.select_one('span.author small span a').text
     thesis['publisher'] = info.select_one('span.publisher').getText()
     thesis['date'] = info.select_one('span.date').getText()
 
@@ -39,7 +39,7 @@ try:
 except:
     exit
 
-for offset in xrange(0, int(total_thesis), jump):
+for offset in range(0, int(total_thesis), jump):
     req  = requests.get("{}{}?offset={}".format(host_url, thesis_url, offset))
     data = req.text
     soup = BeautifulSoup(data, "html.parser")
@@ -48,8 +48,8 @@ for offset in xrange(0, int(total_thesis), jump):
         thesis = {}
         try:
             parse_thesis_simplified(element, thesis)
-        except Exception, e:
+        except Exception:
             pass
         thesis_collection.append(thesis)
 
-print json.dumps(thesis_collection, indent=4)
+print(json.dumps(thesis_collection, indent=4, ensure_ascii=False, encoding="utf-8"))

@@ -1,6 +1,6 @@
 from bs4 import BeautifulSoup
 import requests
-import json
+import simplejson as json
 
 '''
 La documentacion puede ser encontrada en
@@ -9,7 +9,7 @@ https://www.crummy.com/software/BeautifulSoup/bs4/doc/
 
 '''
 LA MISION:
-Rescatar los metadatos basicos (ms ) de todas las tesis
+Rescatar los metadatos basicos de todas las tesis
 doctorales de la Univerdad de Huelva
 '''
 
@@ -17,7 +17,7 @@ def ncd(str):
     return str.encode('utf-8')
 
 def get_abstract_from_thesis(thesis):
-    req  = requests.get("{}{}".format(host_url, thesis['url']))
+    req  = requests.get(thesis['url'])
     data = req.text
     soup = BeautifulSoup(data, "html.parser")
     thesis['abstract'] = soup.select_one("div.abstract-content").text
@@ -26,7 +26,7 @@ def get_abstract_from_thesis(thesis):
 def parse_thesis(element, thesis):
     title = element.select_one('h4 a')
     thesis['title'] = ncd(title.text)
-    thesis['url'] = title['href']
+    thesis['url'] = "{}{}".format(host_url, title['href'])
     get_abstract_from_thesis(thesis)
     info = element.find('div', class_='artifact-info')
     thesis['autor'] = info.select_one('span.author small span a').text
@@ -49,7 +49,7 @@ try:
 except:
     exit
 
-for offset in xrange(0, int(total_thesis), jump):
+for offset in range(0, int(total_thesis), jump):
     req  = requests.get("{}{}?offset={}".format(host_url, thesis_url, offset))
     data = req.text
     soup = BeautifulSoup(data, "html.parser")
@@ -58,8 +58,8 @@ for offset in xrange(0, int(total_thesis), jump):
         thesis = {}
         try:
             parse_thesis(element, thesis)
-        except Exception, e:
+        except Exception:
             pass
         thesis_collection.append(thesis)
 
-print json.dumps(thesis_collection, indent=4)
+print(json.dumps(thesis_collection, indent=4, ensure_ascii=False, encoding="utf-8"))

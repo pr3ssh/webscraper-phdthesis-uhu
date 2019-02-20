@@ -1,6 +1,6 @@
 from bs4 import BeautifulSoup
 import requests
-import json
+import simplejson as json
 
 '''
 La documentacion puede ser encontrada en
@@ -19,17 +19,17 @@ def ncd(str):
 req  = requests.get("http://rabida.uhu.es/dspace/handle/10272/3/recent-submissions")
 data = req.text
 soup = BeautifulSoup(data, "html.parser")
-tesis_collection = []
+thesis_collection = []
 for element in soup.find_all('li', class_='ds-artifact-item'):
     try:
-        tesis = {}
-        tesis['title'] = ncd(element.select_one('h4 a').getText())
+        thesis = {}
+        thesis['title'] = ncd(element.select_one('h4 a').getText())
         info = element.find('div', class_='artifact-info')
-        tesis['autor'] = info.select_one('span.author small span a').getText()
-        tesis['publisher'] = info.select_one('span.publisher').getText()
-        tesis['date'] = info.select_one('span.date').getText()
+        thesis['author'] = info.select_one('span.author small span a').getText()
+        thesis['publisher'] = info.select_one('span.publisher').getText()
+        thesis['date'] = info.select_one('span.date').getText()
     except:
         pass
-    tesis_collection.append(tesis)
+    thesis_collection.append(thesis)
 
-print json.dumps(tesis_collection, indent=4)
+print(json.dumps(thesis_collection, indent=4, ensure_ascii=False, encoding="utf-8"))
