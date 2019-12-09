@@ -9,23 +9,20 @@ https://www.crummy.com/software/BeautifulSoup/bs4/doc/
 
 '''
 LA MISION:
-Rescatar los metadatos basicos de todas las tesis
+Rescatar los metadatos basicos (+ abstract) de todas las tesis
 doctorales de la Univerdad de Huelva
 '''
 
-def ncd(str):
-    return str.encode('utf-8')
-
 def get_abstract_from_thesis(thesis):
-    req  = requests.get(thesis['url'])
-    data = req.text
+    response = requests.get(thesis['url'])
+    data = response.text
     soup = BeautifulSoup(data, "html.parser")
     thesis['abstract'] = soup.select_one("div.abstract-content").text
 
 
 def parse_thesis(element, thesis):
     title = element.select_one('h4 a')
-    thesis['title'] = ncd(title.text)
+    thesis['title'] = title.text
     thesis['url'] = "{}{}".format(host_url, title['href'])
     get_abstract_from_thesis(thesis)
     info = element.find('div', class_='artifact-info')
@@ -39,8 +36,8 @@ host_url = "http://rabida.uhu.es"
 thesis_url = "/dspace/handle/10272/3/recent-submissions"
 jump = 20
 
-req  = requests.get("{}{}".format(host_url, thesis_url))
-data = req.text
+response  = requests.get("{}{}".format(host_url, thesis_url))
+data = response.text
 soup = BeautifulSoup(data, "html.parser")
 thesis_collection = []
 
@@ -50,8 +47,8 @@ except:
     exit
 
 for offset in range(0, int(total_thesis), jump):
-    req  = requests.get("{}{}?offset={}".format(host_url, thesis_url, offset))
-    data = req.text
+    response  = requests.get("{}{}?offset={}".format(host_url, thesis_url, offset))
+    data = response.text
     soup = BeautifulSoup(data, "html.parser")
     repository = soup.select_one("div#repository-content")
     for element in repository.find_all('li', class_='ds-artifact-item'):

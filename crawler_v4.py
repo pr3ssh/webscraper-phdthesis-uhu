@@ -9,21 +9,20 @@ https://www.crummy.com/software/BeautifulSoup/bs4/doc/
 
 '''
 LA MISION:
-Rescatar los metadatos basicos de todas las tesis
-doctorales de la Univerdad de Huelva
+Rescatar los metadatos basicos (+ abstract) de todas las tesis
+doctorales de la Univerdad de Huelva y etiquetarlas en Parlamento2030
 '''
-
-def ncd(str):
-    return str.encode('utf-8')
 
 
 def get_tags_from_tipiciudadano(content):
-    req = requests.post('https://api.tipiciudadano.es/labels/extract',
+    response = requests.post('https://api.dev.parlamento2030.es/labels/extract',
             {
                 'text': content
                 })
-    data = json.loads(req.text)
-    return data['topics']
+    data = json.loads(response.text)
+    if data:
+        return data['topics']
+    return []
 
 
 def get_abstract_from_thesis(thesis):
@@ -35,7 +34,7 @@ def get_abstract_from_thesis(thesis):
 
 def parse_thesis(element, thesis):
     title = element.select_one('h4 a')
-    thesis['title'] = ncd(title.text)
+    thesis['title'] = title.text
     thesis['url'] = "{}{}".format(host_url, title['href'])
     get_abstract_from_thesis(thesis)
     thesis['tags'] = get_tags_from_tipiciudadano(thesis['abstract'])
@@ -50,8 +49,8 @@ host_url = "http://rabida.uhu.es"
 thesis_url = "/dspace/handle/10272/3/recent-submissions"
 jump = 20
 
-req  = requests.get("{}{}".format(host_url, thesis_url))
-data = req.text
+response  = requests.get("{}{}".format(host_url, thesis_url))
+data = response.text
 soup = BeautifulSoup(data, "html.parser")
 thesis_collection = []
 

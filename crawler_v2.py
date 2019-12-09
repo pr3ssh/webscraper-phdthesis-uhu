@@ -13,11 +13,8 @@ Rescatar los metadatos basicos de todas las tesis
 doctorales de la Univerdad de Huelva
 '''
 
-def ncd(str):
-    return str.encode('utf-8')
-
 def parse_thesis_simplified(element, thesis):
-    thesis['title'] = ncd(element.select_one('h4 a').text)
+    thesis['title'] = element.select_one('h4 a').text
     info = element.find('div', class_='artifact-info')
     thesis['author'] = info.select_one('span.author small span a').text
     thesis['publisher'] = info.select_one('span.publisher').getText()
@@ -29,8 +26,8 @@ host_url = "http://rabida.uhu.es"
 thesis_url = "/dspace/handle/10272/3/recent-submissions"
 jump = 20
 
-req  = requests.get("{}{}".format(host_url, thesis_url))
-data = req.text
+response  = requests.get("{}{}".format(host_url, thesis_url))
+data = response.text
 soup = BeautifulSoup(data, "html.parser")
 thesis_collection = []
 
@@ -40,8 +37,8 @@ except:
     exit
 
 for offset in range(0, int(total_thesis), jump):
-    req  = requests.get("{}{}?offset={}".format(host_url, thesis_url, offset))
-    data = req.text
+    response  = requests.get("{}{}?offset={}".format(host_url, thesis_url, offset))
+    data = response.text
     soup = BeautifulSoup(data, "html.parser")
     repository = soup.select_one("div#repository-content")
     for element in repository.find_all('li', class_='ds-artifact-item'):
